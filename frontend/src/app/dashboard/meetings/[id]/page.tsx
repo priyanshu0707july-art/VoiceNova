@@ -1,15 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { LiveKitRoom } from '@livekit/components-react';
+import { LiveKitRoom, Chat } from '@livekit/components-react';
 import VideoGrid from '@/components/meetings/VideoGrid';
 import Captions from '@/components/meetings/Captions';
 import { socket } from '@/lib/socket';
 import { useRouter } from 'next/navigation';
+import HostControlsModal from '@/components/meetings/HostControlsModal';
+import AdvancedControls from '@/components/meetings/AdvancedControls';
+import WhiteboardOverlay from '@/components/meetings/WhiteboardOverlay';
+import EmojiLayer from '@/components/meetings/EmojiLayer';
 
 export default function MeetingRoomPage({ params }: { params: { id: string } }) {
   const [token, setToken] = useState('');
   const [myLanguage, setMyLanguage] = useState('English');
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
+  const [isHostControlsOpen, setIsHostControlsOpen] = useState(false);
   const roomName = params.id;
   const router = useRouter();
 
@@ -147,7 +154,24 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
         style={{ height: '100%', width: '100%' }}
         onDisconnected={() => router.push('/dashboard/meetings')}
       >
-        <VideoGrid />
+        <div className="flex h-full w-full">
+          <div className="flex-1 relative">
+            <VideoGrid />
+            {isWhiteboardOpen && <WhiteboardOverlay onClose={() => setIsWhiteboardOpen(false)} />}
+          </div>
+          {isChatOpen && (
+            <div className="w-80 h-full border-l border-white/10 bg-background/95">
+              <Chat />
+            </div>
+          )}
+        </div>
+        <AdvancedControls 
+          onToggleChat={() => setIsChatOpen(!isChatOpen)}
+          onToggleWhiteboard={() => setIsWhiteboardOpen(!isWhiteboardOpen)}
+          onOpenSettings={() => setIsHostControlsOpen(true)}
+        />
+        {isHostControlsOpen && <HostControlsModal onClose={() => setIsHostControlsOpen(false)} />}
+        <EmojiLayer roomName={roomName} />
       </LiveKitRoom>
     </div>
   );
