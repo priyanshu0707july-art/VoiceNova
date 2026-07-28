@@ -1,0 +1,97 @@
+import { Server, Socket } from 'socket.io';
+import Groq from 'groq-sdk';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+
+export class TranslationService {
+  private groq: Groq;
+
+  constructor(private io: Server, private userLanguages: Map<string, string>) {
+    this.groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+    });
+  }
+
+  public async processAudioChunk(socket: Socket, chunk: Buffer) {
+    const tempFilePath = path.join(os.tmpdir(), `audio_${Date.now()}_${socket.id}.webm`);
+    
+    try {
+      fs.writeFileSync(tempFilePath, chunk);
+
+      // 1. Transcribe the original spoken audio (whatever language it is)
+      const transcription = await this.groq.audio.transcriptions.create({
+        file: fs.createReadStream(tempFilePath),
+        model: "whisper-large-v3-turbo",
+      });
+
+      const transcribedText = transcription.text;
+      if (!transcribedText || transcribedText.trim().length < 2) return;
+
+      // 2. Identify the room the speaker is in
+      const room = Array.from(socket.rooms).find(r => r !== socket.id);
+      if (!room) return;
+
+      // 3. Group all listeners in the room by their requested language
+      const clientsInRoom = await this.io.in(room).fetchSockets();
+      const languageGroups = new Map<string, string[]>();
+      
+      for (const client of clientsInRoom) {
+        const lang = this.userLanguages.get(client.id) || 'English';
+        if (!languageGroups.has(lang)) {
+          languageGroups.set(lang, []);
+        }
+        languageGroups.get(lang)!.push(client.id);
+      }
+
+      // 4. Translate the text ONCE for each unique language requested in the room
+      const translationPromises = Array.from(languageGroups.entries()).map(async ([targetLang, socketIds]) => {
+        try {
+          const translationResponse = await this.groq.chat.completions.create({
+            messages: [
+              {
+                role: "system",
+                content: `You are a highly accurate real-time translator. Translate the user's speech directly into ${targetLang}. ONLY output the raw translated text, with no conversational filler, quotes, or explanations. If the text is already in ${targetLang}, just output the exact text unchanged.`
+              },
+              {
+                role: "user",
+                content: transcribedText
+              }
+            ],
+            model: "llama-3.1-8b-instant",
+            temperature: 0.2,
+            max_tokens: 200,
+          });
+
+          const translatedText = translationResponse.choices[0]?.message?.content?.trim();
+          if (!translatedText) return;
+
+          // 5. Send this specific translation ONLY to the users who asked for it
+          const captionPayload = {
+            id: Math.random().toString(36).substring(7),
+            userId: socket.id,
+            text: `[${targetLang}] ${translatedText}`,
+            timestamp: Date.now()
+          };
+
+          socketIds.forEach(targetSocketId => {
+            this.io.to(targetSocketId).emit('new_caption', captionPayload);
+          });
+          
+        } catch (e) {
+          console.error(`Translation failed for ${targetLang}:`, e);
+        }
+      });
+
+      // Run all translations simultaneously for near-zero latency
+      await Promise.all(translationPromises);
+
+    } catch (error) {
+      console.error("Translation Pipeline Error:", error);
+    } finally {
+      if (fs.existsSync(tempFilePath)) {
+        fs.unlinkSync(tempFilePath);
+      }
+    }
+  }
+}
