@@ -171,7 +171,7 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
           onOpenSettings={() => setIsHostControlsOpen(true)}
         />
         {isHostControlsOpen && <HostControlsModal onClose={() => setIsHostControlsOpen(false)} />}
-        <EmojiLayer roomName={roomName} />
+        <EmojiLayer />
       </LiveKitRoom>
     </div>
   );

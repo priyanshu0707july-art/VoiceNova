@@ -7,7 +7,7 @@ type EmojiReaction = {
   x: number;
 };
 
-export default function EmojiLayer({ roomName }: { roomName: string }) {
+export default function EmojiLayer() {
   const [reactions, setReactions] = useState<EmojiReaction[]>([]);
 
   useEffect(() => {
