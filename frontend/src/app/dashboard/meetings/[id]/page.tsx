@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { LiveKitRoom } from '@livekit/components-react';
 import VideoGrid from '@/components/meetings/VideoGrid';
 import Captions from '@/components/meetings/Captions';
