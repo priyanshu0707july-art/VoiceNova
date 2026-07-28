@@ -17,7 +17,7 @@ export default function Home() {
           <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-white transition-colors">
             Log In
           </Link>
-          <Button asChild className="primary-glow rounded-full px-6">
+          <Button className="primary-glow rounded-full px-6">
             <Link href="/signup">Get Started</Link>
           </Button>
         </div>
@@ -40,10 +40,10 @@ export default function Home() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <Button asChild size="lg" className="primary-glow rounded-full px-8 text-base h-14">
+          <Button size="lg" className="primary-glow rounded-full px-8 text-base h-14">
             <Link href="/signup">Start for free</Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-base h-14 glass-panel hover:bg-white/10 border-white/10 text-white">
+          <Button variant="outline" size="lg" className="rounded-full px-8 text-base h-14 glass-panel hover:bg-white/10 border-white/10 text-white">
             <Link href="/demo">Watch Demo</Link>
           </Button>
         </div>
