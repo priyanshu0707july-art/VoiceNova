@@ -12,7 +12,6 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
   const [myLanguage, setMyLanguage] = useState('English');
   const roomName = params.id;
   const router = useRouter();
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   useEffect(() => {
     // For V1 Demo, we hit our backend to generate a LiveKit token

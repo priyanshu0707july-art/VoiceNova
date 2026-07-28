@@ -29,7 +29,7 @@ export default function DashboardPage() {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-white mb-1">No upcoming meetings</h3>
-          <p className="text-muted-foreground text-sm max-w-sm mb-6">You don't have any scheduled meetings right now. Create a new meeting to get started.</p>
+          <p className="text-muted-foreground text-sm max-w-sm mb-6">You don&apos;t have any scheduled meetings right now. Create a new meeting to get started.</p>
           <button className="text-primary hover:text-primary/80 font-medium text-sm">Schedule a meeting</button>
         </div>
       </div>
