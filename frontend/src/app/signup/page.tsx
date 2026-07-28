@@ -32,7 +32,9 @@ export default function SignupPage() {
             <input type="text" placeholder="Full Name" className="w-full h-12 px-4 rounded-lg bg-input border border-border text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
             <input type="email" placeholder="name@example.com" className="w-full h-12 px-4 rounded-lg bg-input border border-border text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
             <input type="password" placeholder="Password" className="w-full h-12 px-4 rounded-lg bg-input border border-border text-white placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-            <Button className="w-full primary-glow h-12">Sign Up</Button>
+            <Link href="/dashboard" className="w-full">
+              <Button type="button" className="w-full primary-glow h-12">Sign Up</Button>
+            </Link>
           </div>
         </div>
         
