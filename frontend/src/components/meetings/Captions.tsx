@@ -11,7 +11,7 @@ interface Caption {
   timestamp: number;
 }
 
-export default function Captions({ roomName }: { roomName: string }) {
+export default function Captions({ roomName, myLanguage = 'Original' }: { roomName: string, myLanguage?: string }) {
   const [captions, setCaptions] = useState<Caption[]>([]);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ export default function Captions({ roomName }: { roomName: string }) {
       });
 
       // TTS: Speak the translated caption out loud
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (myLanguage !== 'Original' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
         // Extract just the text without the language prefix like [EN]
         const textToSpeak = caption.text.replace(/^\[.*?\]\s*/, '');
         const utterance = new SpeechSynthesisUtterance(textToSpeak);

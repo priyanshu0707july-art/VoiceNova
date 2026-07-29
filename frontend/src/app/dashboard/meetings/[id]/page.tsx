@@ -142,7 +142,7 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
           WhatsApp
         </a>
       </div>
-      <Captions roomName={roomName} />
+      <Captions roomName={roomName} myLanguage={myLanguage} />
       <LiveKitRoom
         video={true}
         audio={true}
