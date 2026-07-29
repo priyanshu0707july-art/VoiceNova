@@ -56,7 +56,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         });
 
         if (signUpError) throw signUpError;
-        router.push('/');
+        router.push('/dashboard');
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
@@ -64,7 +64,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         });
 
         if (signInError) throw signInError;
-        router.push('/');
+        router.push('/dashboard');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during authentication');
@@ -79,7 +79,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
       const { error: googleError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: `${window.location.origin}/dashboard`
         }
       });
       if (googleError) throw googleError;
