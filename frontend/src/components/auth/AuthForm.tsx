@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -147,7 +147,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
               className="pt-2 pb-1"
             >
               <div className="flex gap-1 h-1.5 w-full bg-white/5 rounded-full overflow-hidden mb-3">
-                {requirements.map((req, i) => {
+                {requirements.map((req) => {
                   const isValid = req.regex.test(password);
                   return (
                     <motion.div 

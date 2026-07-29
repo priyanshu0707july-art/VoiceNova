@@ -136,8 +136,8 @@ function CobeGlobe() {
         { location: [37.7595, -122.4367], size: 0.03 },
         { location: [40.7128, -74.0060], size: 0.1 },
       ],
-      // @ts-ignore
-      onRender: (state: Record<string, any>) => {
+      // @ts-expect-error cobe options type is missing onRender
+      onRender: (state: { phi: number }) => {
         state.phi = phi
         phi += 0.005
       }
