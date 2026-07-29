@@ -69,7 +69,7 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
             currentRecorder.stop();
           }
           if (isActive) recordLoop();
-        }, 2500);
+        }, 5000);
       };
 
       recordLoop();
