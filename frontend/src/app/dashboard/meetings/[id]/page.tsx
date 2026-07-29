@@ -154,7 +154,7 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
       >
         <div className="flex h-full w-full">
           <div className="flex-1 relative">
-            <VideoGrid />
+            <VideoGrid myLanguage={myLanguage} />
             {isWhiteboardOpen && <WhiteboardOverlay onClose={() => setIsWhiteboardOpen(false)} />}
           </div>
           {isChatOpen && (

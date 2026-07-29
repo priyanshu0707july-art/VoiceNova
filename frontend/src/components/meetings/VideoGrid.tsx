@@ -10,7 +10,7 @@ import {
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 
-export default function VideoGrid() {
+export default function VideoGrid({ myLanguage = 'Original' }: { myLanguage?: string }) {
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -56,7 +56,7 @@ export default function VideoGrid() {
         />
       </div>
       
-      <RoomAudioRenderer />
+      {myLanguage === 'Original' && <RoomAudioRenderer />}
     </div>
   );
 }
