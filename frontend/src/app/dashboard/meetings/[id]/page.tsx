@@ -85,7 +85,12 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
 
   // Sync language with backend
   useEffect(() => {
-    socket.emit('set_language', myLanguage);
+    const setLang = () => socket.emit('set_language', myLanguage);
+    if (socket.connected) setLang();
+    socket.on('connect', setLang);
+    return () => {
+      socket.off('connect', setLang);
+    };
   }, [myLanguage]);
 
   if (token === '') {

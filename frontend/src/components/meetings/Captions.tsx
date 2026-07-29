@@ -16,7 +16,10 @@ export default function Captions({ roomName, myLanguage = 'Original' }: { roomNa
 
   useEffect(() => {
     socket.connect();
-    socket.emit('join_meeting', roomName);
+    
+    const joinRoom = () => socket.emit('join_meeting', roomName);
+    if (socket.connected) joinRoom();
+    socket.on('connect', joinRoom);
 
     socket.on('new_caption', (caption: Caption) => {
       setCaptions((prev) => {
@@ -46,6 +49,7 @@ export default function Captions({ roomName, myLanguage = 'Original' }: { roomNa
 
     return () => {
       socket.off('new_caption');
+      socket.off('connect', joinRoom);
       socket.disconnect();
     };
   }, [roomName]);
