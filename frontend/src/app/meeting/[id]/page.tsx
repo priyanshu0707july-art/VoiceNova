@@ -1,17 +1,13 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { LiveKitRoom, VideoConference, RoomAudioRenderer, ControlBar, GridLayout, ParticipantTile } from '@livekit/components-react';
+import { LiveKitRoom, VideoConference, RoomAudioRenderer } from '@livekit/components-react';
 import '@livekit/components-styles';
-import { useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { Loader2 } from 'lucide-react';
-import InteractiveWhiteboard from '@/components/meeting/InteractiveWhiteboard';
 
 export default function MeetingRoom({ params }: { params: { id: string } }) {
   const [token, setToken] = useState('');
-  const [name, setName] = useState('');
-  const [showWhiteboard, setShowWhiteboard] = useState(false);
   
   const room = params.id;
 
