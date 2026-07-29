@@ -23,7 +23,7 @@ export default function StatisticsSection() {
   );
 }
 
-function StatCard({ stat, index }: { stat: any, index: number }) {
+function StatCard({ stat, index }: { stat: { label: string, value: number, prefix?: string, suffix?: string }, index: number }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [count, setCount] = useState(0);

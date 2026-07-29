@@ -37,7 +37,7 @@ export default function DemoSection() {
                    transition={{ repeat: Infinity, duration: 4, repeatType: "reverse" }}
                    className="inline-block bg-black/60 backdrop-blur-md px-4 py-2 rounded-lg text-white font-medium text-sm md:text-base border border-white/20"
                  >
-                   Bonjour, comment ça va aujourd'hui?
+                   Bonjour, comment ça va aujourd&apos;hui?
                  </motion.div>
                </div>
             </div>

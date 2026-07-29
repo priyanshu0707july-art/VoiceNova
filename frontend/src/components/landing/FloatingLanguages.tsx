@@ -21,7 +21,7 @@ export default function FloatingLanguages() {
   );
 }
 
-function FloatingCard({ data }: { data: any }) {
+function FloatingCard({ data }: { data: { id: number, text: string, translation: string, lang: string, top?: string, left?: string, right?: string, bottom?: string, delay: number } }) {
   const [showTranslation, setShowTranslation] = useState(false);
 
   useEffect(() => {
