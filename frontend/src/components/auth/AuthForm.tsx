@@ -66,8 +66,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
         if (signInError) throw signInError;
         router.push('/');
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during authentication');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during authentication');
     } finally {
       setIsLoading(false);
     }
@@ -83,8 +83,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
         }
       });
       if (googleError) throw googleError;
-    } catch (err: any) {
-      setError(err.message || 'Google login failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google login failed');
     }
   };
 
