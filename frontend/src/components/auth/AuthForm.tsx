@@ -38,6 +38,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       if (isSignup) {
