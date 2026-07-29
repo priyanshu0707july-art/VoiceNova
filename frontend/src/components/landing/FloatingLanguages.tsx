@@ -4,11 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const languages = [
-  { id: 1, text: 'Hello!', translation: 'नमस्ते!', lang: 'Hindi', flag: '🇮🇳', emoji: '👏', top: '15%', left: '10%', delay: 0 },
-  { id: 2, text: 'Welcome!', translation: 'Bienvenue!', lang: 'French', flag: '🇫🇷', emoji: '👋', top: '25%', right: '15%', delay: 1.5 },
-  { id: 3, text: 'Thanks!', translation: 'ありがとう!', lang: 'Japanese', flag: '🇯🇵', emoji: '👏', bottom: '30%', left: '15%', delay: 0.8 },
-  { id: 4, text: 'Yes!', translation: '네!', lang: 'Korean', flag: '🇰🇷', emoji: '✌️', bottom: '20%', right: '10%', delay: 2.2 },
-  { id: 5, text: 'Good!', translation: '¡Bueno!', lang: 'Spanish', flag: '🇪🇸', emoji: '👍', top: '45%', left: '5%', delay: 1.2 },
+  { id: 1, text: 'Hello!', translation: 'नमस्ते!', lang: 'Hindi', flag: 'in', emoji: '👏', top: '15%', left: '10%', delay: 0 },
+  { id: 2, text: 'Welcome!', translation: 'Bienvenue!', lang: 'French', flag: 'fr', emoji: '👋', top: '25%', right: '15%', delay: 1.5 },
+  { id: 3, text: 'Thanks!', translation: 'ありがとう!', lang: 'Japanese', flag: 'jp', emoji: '👏', bottom: '30%', left: '15%', delay: 0.8 },
+  { id: 4, text: 'Yes!', translation: '네!', lang: 'Korean', flag: 'kr', emoji: '✌️', bottom: '20%', right: '10%', delay: 2.2 },
+  { id: 5, text: 'Good!', translation: '¡Bueno!', lang: 'Spanish', flag: 'es', emoji: '👍', top: '45%', left: '5%', delay: 1.2 },
 ];
 
 export default function FloatingLanguages() {
@@ -50,7 +50,7 @@ function FloatingCard({ data }: { data: { id: number, text: string, translation:
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center text-lg bg-white/10 border border-white/20">
-            {data.flag}
+            <img src={`https://flagcdn.com/${data.flag}.svg`} alt={`${data.lang} flag`} className="w-full h-full object-cover" />
           </div>
           <span className="text-sm text-white/90 font-medium tracking-wide">{data.lang}</span>
         </div>
