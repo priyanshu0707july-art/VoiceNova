@@ -21,7 +21,6 @@ export default function MeetingRoom({ params }: { params: { id: string } }) {
     const fetchToken = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       const username = session?.user?.user_metadata?.full_name || `Guest_${Math.floor(Math.random() * 1000)}`;
-      setName(username);
 
       try {
         const resp = await fetch(`/api/livekit?room=${room}&username=${encodeURIComponent(username)}`);
