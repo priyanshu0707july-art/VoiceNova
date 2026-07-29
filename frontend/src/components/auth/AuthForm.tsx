@@ -3,11 +3,13 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, CheckCircle2, ShieldCheck, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FcGoogle } from 'react-icons/fc';
 import { FaApple, FaGithub } from 'react-icons/fa';
+import { supabase } from '@/lib/supabase';
 
 interface AuthFormProps {
   mode: 'login' | 'signup';
@@ -17,6 +19,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   const isSignup = mode === 'signup';
 
@@ -30,10 +36,56 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulating API call
-    setTimeout(() => {
+    setError('');
+
+    try {
+      if (isSignup) {
+        const isValidPassword = requirements.every(req => req.regex.test(password));
+        if (!isValidPassword) {
+          throw new Error("Please meet all password requirements.");
+        }
+
+        const { error: signUpError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+            }
+          }
+        });
+
+        if (signUpError) throw signUpError;
+        router.push('/');
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) throw signInError;
+        router.push('/');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during authentication');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError('');
+    try {
+      const { error: googleError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+      if (googleError) throw googleError;
+    } catch (err: any) {
+      setError(err.message || 'Google login failed');
+    }
   };
 
   return (
@@ -53,7 +105,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         </div>
 
         {/* Title */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-white mb-3 tracking-tight">
             {isSignup ? 'Create your account' : 'Welcome back'}
           </h2>
@@ -68,10 +120,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
           />
         </div>
 
+        {error && (
+          <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+            {error}
+          </div>
+        )}
+
         {/* Social Logins */}
         <div className="space-y-3 mb-8">
-          <SocialButton icon={<FcGoogle className="w-5 h-5" />} text="Continue with Google" />
-          <SocialButton icon={<FaGithub className="w-5 h-5" />} text="Continue with GitHub" />
+          <SocialButton onClick={handleGoogleLogin} icon={<FcGoogle className="w-5 h-5" />} text="Continue with Google" />
+          <SocialButton icon={<FaGithub className="w-5 h-5" />} text="Continue with GitHub" disabled />
           <SocialButton icon={<FaApple className="w-5 h-5" />} text="Continue with Apple (Soon)" disabled />
         </div>
 
@@ -97,6 +155,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 <Input 
                   type="text" 
                   placeholder="Elon Musk"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="bg-white/5 border-white/10 pl-11 h-12 text-base text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all rounded-xl"
                   required
                 />
@@ -111,6 +171,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
               <Input 
                 type="email" 
                 placeholder="name@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="bg-white/5 border-white/10 pl-11 h-12 text-base text-white focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all rounded-xl"
                 required
               />
@@ -224,9 +286,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
   );
 }
 
-function SocialButton({ icon, text, disabled = false }: { icon: React.ReactNode; text: string; disabled?: boolean }) {
+function SocialButton({ icon, text, disabled = false, onClick }: { icon: React.ReactNode; text: string; disabled?: boolean; onClick?: () => void }) {
   return (
     <button 
+      type="button"
+      onClick={onClick}
       disabled={disabled}
       className={`w-full flex items-center justify-center gap-3 h-11 rounded-xl bg-white/5 border border-white/10 text-white font-medium transition-all group overflow-hidden relative ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10 hover:border-white/20 hover:scale-[1.01] active:scale-[0.99]'}`}
     >
