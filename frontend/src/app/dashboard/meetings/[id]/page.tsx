@@ -13,7 +13,7 @@ import EmojiLayer from '@/components/meetings/EmojiLayer';
 
 export default function MeetingRoomPage({ params }: { params: { id: string } }) {
   const [token, setToken] = useState('');
-  const [myLanguage, setMyLanguage] = useState('English');
+  const [myLanguage, setMyLanguage] = useState('Original');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
   const [isHostControlsOpen, setIsHostControlsOpen] = useState(false);
@@ -113,8 +113,9 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
         <select 
           value={myLanguage}
           onChange={(e) => setMyLanguage(e.target.value)}
-          className="bg-primary/20 text-white font-semibold py-1.5 px-3 rounded-lg border border-primary/30 outline-none cursor-pointer"
+          className="bg-[#121623] text-white font-semibold py-1.5 px-3 rounded-lg border border-[#6D5BFF]/30 hover:border-[#6D5BFF] outline-none cursor-pointer"
         >
+          <option value="Original">Leave as it is (Original) 🎙️</option>
           <option value="English">English 🇺🇸</option>
           <option value="Hindi">Hindi 🇮🇳</option>
           <option value="Marathi">Marathi 🇮🇳</option>
