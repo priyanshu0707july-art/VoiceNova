@@ -45,7 +45,7 @@ export default function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -40 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-secondary animate-gradient-x leading-tight pb-2"
+            className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white drop-shadow-2xl leading-tight pb-2"
           >
             {headlines[index]}.
           </motion.h1>
