@@ -113,6 +113,9 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
 
   return (
     <div className="w-full h-[calc(100vh-10rem)] relative">
+      <div className="absolute top-16 left-4 z-[200] bg-black/80 text-xs text-white p-2 rounded">
+        Debug: {socket.connected ? 'Socket Connected ✅' : 'Socket Disconnected ❌'} | URL: {process.env.NEXT_PUBLIC_API_URL || 'localhost'}
+      </div>
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[200] bg-black/60 backdrop-blur-xl px-4 py-2 rounded-full border border-white/10 flex items-center gap-3 shadow-2xl">
         <span className="text-white/80 font-medium text-sm whitespace-nowrap">I speak/read:</span>
         <select 
