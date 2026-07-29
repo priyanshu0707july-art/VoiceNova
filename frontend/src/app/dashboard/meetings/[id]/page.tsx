@@ -24,11 +24,8 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
     // For V1 Demo, we hit our backend to generate a LiveKit token
     const fetchToken = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/meetings/token`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ room: roomName }),
-        });
+        const username = `User_${Math.floor(Math.random() * 10000)}`;
+        const res = await fetch(`/api/livekit?room=${roomName}&username=${username}`);
         
         const data = await res.json();
         if (data.token) {
