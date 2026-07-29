@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Twitter, Linkedin } from 'lucide-react';
+
 
 export default function Footer() {
   return (
@@ -14,12 +14,14 @@ export default function Footer() {
         </div>
         
         <div className="flex gap-6">
-          <Link href="#" className="text-muted-foreground hover:text-white transition-colors hover:scale-110">
-            <Twitter className="w-5 h-5" />
+          <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">
+            Twitter
           </Link>
-
-          <Link href="#" className="text-muted-foreground hover:text-white transition-colors hover:scale-110">
-            <Linkedin className="w-5 h-5" />
+          <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">
+            GitHub
+          </Link>
+          <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">
+            LinkedIn
           </Link>
         </div>
       </div>
