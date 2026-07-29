@@ -22,6 +22,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter();
 
   const isSignup = mode === 'signup';
@@ -45,7 +46,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           throw new Error("Please meet all password requirements.");
         }
 
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -56,6 +57,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
         });
 
         if (signUpError) throw signUpError;
+        
+        if (data?.user && data?.session === null) {
+          setSuccess('Account created! Please check your email to confirm your account.');
+          setIsLoading(false);
+          return;
+        }
+
         router.push('/dashboard');
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -123,6 +131,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {error && (
           <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-6 p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm text-center">
+            {success}
           </div>
         )}
 
