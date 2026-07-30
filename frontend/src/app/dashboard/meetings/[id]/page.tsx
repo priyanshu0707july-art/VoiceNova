@@ -46,39 +46,46 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
     if (!token) return;
     let isActive = true;
     let currentRecorder: MediaRecorder | null = null;
+    let intervalId: NodeJS.Timeout;
+    let mediaStream: MediaStream | null = null;
     
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      const recordLoop = () => {
-        if (!isActive) return;
-        
-        // We create a NEW recorder every cycle so every chunk has valid WebM headers
-        currentRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        
-        currentRecorder.ondataavailable = async (e) => {
+      if (!isActive) return;
+      mediaStream = stream;
+      
+      const startRecording = () => {
+        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        recorder.ondataavailable = async (e) => {
           if (e.data.size > 0 && socket.connected) {
             const buffer = await e.data.arrayBuffer();
-            socket.emit('audio_chunk', { chunk: buffer }); // Backend handles translation language
+            socket.emit('audio_chunk', { chunk: buffer });
           }
         };
-
-        currentRecorder.start();
-        
-        // Record for 2.5 seconds, stop (which triggers ondataavailable), and loop
-        setTimeout(() => {
-          if (currentRecorder && currentRecorder.state === 'recording') {
-            currentRecorder.stop();
-          }
-          if (isActive) recordLoop();
-        }, 5000);
+        recorder.start();
+        return recorder;
       };
 
-      recordLoop();
+      currentRecorder = startRecording();
+
+      intervalId = setInterval(() => {
+        if (currentRecorder && currentRecorder.state === 'recording') {
+          currentRecorder.stop(); // Triggers ondataavailable
+        }
+        if (isActive) {
+          currentRecorder = startRecording();
+        }
+      }, 5000);
+      
     }).catch(err => console.error("Mic access failed for AI pipeline", err));
 
     return () => {
       isActive = false;
+      clearInterval(intervalId);
       if (currentRecorder && currentRecorder.state !== 'inactive') {
         currentRecorder.stop();
+      }
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
       }
     };
   }, [token]);
