@@ -53,6 +53,7 @@ export default function Captions({ roomName, myLanguage = 'Original' }: { roomNa
       socket.off('connect', joinRoom);
       socket.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomName]);
 
   // Automatically fade out captions after 5 seconds

@@ -48,6 +48,7 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
     let currentRecorder: MediaRecorder | null = null;
     let intervalId: ReturnType<typeof setInterval>;
     let mediaStream: MediaStream | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let audioContext: any = null;
     
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
@@ -55,6 +56,7 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
       mediaStream = stream;
       
       // Voice Activity Detection to save Groq API Rate Limits (20 RPM)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
       audioContext = new AudioContextClass();
       const analyser = audioContext.createAnalyser();
