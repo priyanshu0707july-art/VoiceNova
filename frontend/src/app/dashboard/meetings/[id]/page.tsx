@@ -46,16 +46,17 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
     if (!token) return;
     let isActive = true;
     let currentRecorder: MediaRecorder | null = null;
-    let intervalId: NodeJS.Timeout;
+    let intervalId: ReturnType<typeof setInterval>;
     let mediaStream: MediaStream | null = null;
-    let audioContext: AudioContext | null = null;
+    let audioContext: any = null;
     
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       if (!isActive) return;
       mediaStream = stream;
       
       // Voice Activity Detection to save Groq API Rate Limits (20 RPM)
-      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+      audioContext = new AudioContextClass();
       const analyser = audioContext.createAnalyser();
       const microphone = audioContext.createMediaStreamSource(stream);
       microphone.connect(analyser);
