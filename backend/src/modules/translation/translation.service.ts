@@ -46,6 +46,7 @@ export class TranslationService {
 
       // 4. Translate the text ONCE for each unique language requested in the room
       const translationPromises = Array.from(languageGroups.entries()).map(async ([targetLang, socketIds]) => {
+        if (targetLang === 'Original') return; // Skip translation entirely to save API limits
         try {
           const translationResponse = await this.groq.chat.completions.create({
             messages: [

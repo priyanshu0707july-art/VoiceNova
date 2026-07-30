@@ -22,6 +22,7 @@ export default function Captions({ roomName, myLanguage = 'Original' }: { roomNa
     socket.on('connect', joinRoom);
 
     socket.on('new_caption', (caption: Caption) => {
+      if (myLanguage === 'Original') return; // Do not show captions if Original
       setCaptions((prev) => {
         // Keep only the last 3 captions to prevent screen clutter
         const updated = [...prev, caption];
