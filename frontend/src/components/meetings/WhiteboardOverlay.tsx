@@ -1,6 +1,10 @@
-import { Tldraw } from 'tldraw';
+import dynamic from 'next/dynamic';
 import 'tldraw/tldraw.css';
 import { X } from 'lucide-react';
+
+const Tldraw = dynamic(() => import('tldraw').then((mod) => mod.Tldraw), {
+  ssr: false,
+});
 
 export default function WhiteboardOverlay({ onClose }: { onClose: () => void }) {
   return (
