@@ -48,15 +48,39 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
     let currentRecorder: MediaRecorder | null = null;
     let intervalId: NodeJS.Timeout;
     let mediaStream: MediaStream | null = null;
+    let audioContext: AudioContext | null = null;
     
     navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
       if (!isActive) return;
       mediaStream = stream;
       
+      // Voice Activity Detection to save Groq API Rate Limits (20 RPM)
+      audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const microphone = audioContext.createMediaStreamSource(stream);
+      microphone.connect(analyser);
+      analyser.fftSize = 256;
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      
+      let isSpeakingInChunk = false;
+      const checkVolume = () => {
+        if (!isActive) return;
+        analyser.getByteFrequencyData(dataArray);
+        const sum = dataArray.reduce((a, b) => a + b, 0);
+        const average = sum / dataArray.length;
+        if (average > 15) isSpeakingInChunk = true;
+        requestAnimationFrame(checkVolume);
+      };
+      checkVolume();
+      
       const startRecording = () => {
         const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        const hadSpeech = isSpeakingInChunk;
+        isSpeakingInChunk = false; // Reset for the next chunk
+        
         recorder.ondataavailable = async (e) => {
-          if (e.data.size > 0 && socket.connected) {
+          // ONLY send to backend if user actually spoke! This prevents 429 Too Many Requests.
+          if (e.data.size > 0 && socket.connected && hadSpeech) {
             const buffer = await e.data.arrayBuffer();
             socket.emit('audio_chunk', { chunk: buffer });
           }
@@ -74,7 +98,7 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
         if (isActive) {
           currentRecorder = startRecording();
         }
-      }, 5000);
+      }, 6000); // 6 seconds to comfortably stay under 20 RPM limit
       
     }).catch(err => console.error("Mic access failed for AI pipeline", err));
 
@@ -86,6 +110,9 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
       }
       if (mediaStream) {
         mediaStream.getTracks().forEach(track => track.stop());
+      }
+      if (audioContext) {
+        audioContext.close();
       }
     };
   }, [token]);
