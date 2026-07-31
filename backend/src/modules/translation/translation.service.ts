@@ -3,14 +3,17 @@ import Groq from 'groq-sdk';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import { STTManager } from './stt.service';
 
 export class TranslationService {
   private groq: Groq;
+  private sttManager: STTManager;
 
   constructor(private io: Server, private userLanguages: Map<string, string>) {
     this.groq = new Groq({
       apiKey: process.env.GROQ_API_KEY,
     });
+    this.sttManager = new STTManager();
   }
 
   public async processAudioChunk(socket: Socket, chunk: Buffer) {
@@ -19,13 +22,9 @@ export class TranslationService {
     try {
       fs.writeFileSync(tempFilePath, chunk);
 
-      // 1. Transcribe the original spoken audio (whatever language it is)
-      const transcription = await this.groq.audio.transcriptions.create({
-        file: fs.createReadStream(tempFilePath),
-        model: "whisper-large-v3-turbo",
-      });
+      // 1. Transcribe the original spoken audio using the Multi-Provider STT Manager
+      const transcribedText = await this.sttManager.transcribe(tempFilePath);
 
-      const transcribedText = transcription.text;
       if (!transcribedText || transcribedText.trim().length < 2) return;
 
       // 2. Identify the room the speaker is in
