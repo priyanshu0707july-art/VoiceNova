@@ -222,19 +222,13 @@ export default function DashboardPage() {
                 { label: 'Real-Time Translation', icon: Languages, color: 'text-blue-400', active: true },
                 { label: 'AI Meeting Summaries', icon: FileText, color: 'text-purple-400', active: true },
                 { label: 'Voice Cloning', icon: Mic, color: 'text-pink-400', active: true },
-              ].map((feat: any, i) => (
+              ].map((feat, i) => (
                 <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
                   <div className="flex items-center gap-3">
                     <feat.icon className={`w-4 h-4 ${feat.color}`} />
                     <span className="text-sm font-medium text-white">{feat.label}</span>
                   </div>
-                  {feat.badge ? (
-                    <span className="text-[10px] uppercase tracking-wider font-bold text-pink-400 bg-pink-400/10 px-2 py-0.5 rounded-full">
-                      {feat.badge}
-                    </span>
-                  ) : (
-                    <div className="w-2 h-2 rounded-full bg-[#22C55E] shadow-[0_0_5px_#22C55E]" />
-                  )}
+                  <div className="w-2 h-2 rounded-full bg-[#22C55E] shadow-[0_0_5px_#22C55E]" />
                 </div>
               ))}
             </div>
