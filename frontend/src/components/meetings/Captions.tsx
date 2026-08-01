@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { socket } from '@/lib/socket';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -14,6 +14,11 @@ interface Caption {
 export default function Captions({ roomName, myLanguage = 'Original' }: { roomName: string, myLanguage?: string }) {
   const [captions, setCaptions] = useState<Caption[]>([]);
 
+  const languageRef = useRef(myLanguage);
+  useEffect(() => {
+    languageRef.current = myLanguage;
+  }, [myLanguage]);
+
   useEffect(() => {
     socket.connect();
     
@@ -22,7 +27,7 @@ export default function Captions({ roomName, myLanguage = 'Original' }: { roomNa
     socket.on('connect', joinRoom);
 
     socket.on('new_caption', (caption: Caption) => {
-      if (myLanguage === 'Original') return; // Do not show captions if Original
+      if (languageRef.current === 'Original') return; // Do not show captions if Original
       setCaptions((prev) => {
         // Keep only the last 3 captions to prevent screen clutter
         const updated = [...prev, caption];
@@ -30,7 +35,7 @@ export default function Captions({ roomName, myLanguage = 'Original' }: { roomNa
       });
 
       // TTS: Speak the translated caption out loud
-      if (myLanguage !== 'Original' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (languageRef.current !== 'Original' && typeof window !== 'undefined' && 'speechSynthesis' in window) {
         // Extract just the text without the language prefix like [EN]
         const textToSpeak = caption.text.replace(/^\[.*?\]\s*/, '');
         const utterance = new SpeechSynthesisUtterance(textToSpeak);
