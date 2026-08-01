@@ -222,7 +222,7 @@ export default function DashboardPage() {
                 { label: 'Real-Time Translation', icon: Languages, color: 'text-blue-400', active: true },
                 { label: 'AI Meeting Summaries', icon: FileText, color: 'text-purple-400', active: true },
                 { label: 'Voice Cloning', icon: Mic, color: 'text-pink-400', active: true },
-              ].map((feat, i) => (
+              ].map((feat: any, i) => (
                 <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
                   <div className="flex items-center gap-3">
                     <feat.icon className={`w-4 h-4 ${feat.color}`} />
