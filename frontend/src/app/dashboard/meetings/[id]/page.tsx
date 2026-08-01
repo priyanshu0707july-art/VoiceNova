@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { LiveKitRoom, Chat } from '@livekit/components-react';
 import VideoGrid from '@/components/meetings/VideoGrid';
 import Captions from '@/components/meetings/Captions';
@@ -19,6 +19,57 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
   const [isHostControlsOpen, setIsHostControlsOpen] = useState(false);
   const roomName = params.id;
   const router = useRouter();
+  
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+        mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop());
+      }
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({ 
+        video: { displaySurface: "browser" }, 
+        audio: true 
+      });
+      
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Meeting_Recording_${new Date().toISOString()}.webm`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setIsRecording(false);
+      };
+
+      stream.getVideoTracks()[0].onended = () => {
+        if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+        setIsRecording(false);
+      };
+
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error("Recording failed", err);
+    }
+  };
 
   useEffect(() => {
     // For V1 Demo, we hit our backend to generate a LiveKit token
@@ -212,6 +263,8 @@ export default function MeetingRoomPage({ params }: { params: { id: string } }) 
           onToggleChat={() => setIsChatOpen(!isChatOpen)}
           onToggleWhiteboard={() => setIsWhiteboardOpen(!isWhiteboardOpen)}
           onOpenSettings={() => setIsHostControlsOpen(true)}
+          isRecording={isRecording}
+          onToggleRecording={toggleRecording}
         />
         {isHostControlsOpen && <HostControlsModal onClose={() => setIsHostControlsOpen(false)} />}
         <EmojiLayer />

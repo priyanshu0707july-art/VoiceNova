@@ -1,15 +1,19 @@
-import { MessageSquare, Presentation, Shield, Smile } from 'lucide-react';
+import { MessageSquare, Presentation, Shield, Smile, Radio } from 'lucide-react';
 import { useState } from 'react';
 import { socket } from '@/lib/socket';
 
 export default function AdvancedControls({ 
   onToggleChat, 
   onToggleWhiteboard, 
-  onOpenSettings 
+  onOpenSettings,
+  isRecording,
+  onToggleRecording
 }: { 
   onToggleChat: () => void,
   onToggleWhiteboard: () => void,
-  onOpenSettings: () => void
+  onOpenSettings: () => void,
+  isRecording?: boolean,
+  onToggleRecording?: () => void
 }) {
   const [showEmojis, setShowEmojis] = useState(false);
 
@@ -46,6 +50,14 @@ export default function AdvancedControls({
         </button>
         
         <div className="w-px h-8 bg-white/10 mx-1"></div>
+
+        <button 
+          onClick={onToggleRecording}
+          className={`p-3 rounded-xl transition-colors ${isRecording ? 'bg-red-500/20 hover:bg-red-500/30 text-red-500 animate-pulse' : 'hover:bg-white/10 text-white'}`}
+          title={isRecording ? "Stop Recording" : "Record Meeting"}
+        >
+          <Radio className="w-5 h-5" />
+        </button>
 
         <button 
           onClick={onToggleWhiteboard}
