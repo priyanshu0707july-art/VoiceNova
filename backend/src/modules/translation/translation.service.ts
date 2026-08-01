@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import Groq from 'groq-sdk';
+import OpenAI from 'openai';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -8,11 +9,15 @@ import { STTManager } from './stt.service';
 export class TranslationService {
   private groq: Groq;
   private sttManager: STTManager;
+  private openai: OpenAI | null = null;
 
   constructor(private io: Server, private userLanguages: Map<string, string>) {
     this.groq = new Groq({
       apiKey: process.env.GROQ_API_KEY,
     });
+    if (process.env.OPENAI_API_KEY) {
+      this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    }
     this.sttManager = new STTManager();
   }
 
@@ -47,23 +52,46 @@ export class TranslationService {
       const translationPromises = Array.from(languageGroups.entries()).map(async ([targetLang, socketIds]) => {
         if (targetLang === 'Original') return; // Skip translation entirely to save API limits
         try {
-          const translationResponse = await this.groq.chat.completions.create({
-            messages: [
-              {
-                role: "system",
-                content: `You are a highly accurate real-time translator. Translate the user's speech directly into ${targetLang}. ONLY output the raw translated text, with no conversational filler, quotes, or explanations. If the text is already in ${targetLang}, just output the exact text unchanged.`
-              },
-              {
-                role: "user",
-                content: transcribedText
-              }
-            ],
-            model: "llama-3.1-8b-instant",
-            temperature: 0.2,
-            max_tokens: 200,
-          });
+          let translatedText = '';
+          try {
+            const translationResponse = await this.groq.chat.completions.create({
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a highly accurate real-time translator. Translate the user's speech directly into ${targetLang}. ONLY output the raw translated text, with no conversational filler, quotes, or explanations. If the text is already in ${targetLang}, just output the exact text unchanged.`
+                },
+                {
+                  role: "user",
+                  content: transcribedText
+                }
+              ],
+              model: "llama-3.1-8b-instant",
+              temperature: 0.2,
+              max_tokens: 200,
+            });
+            translatedText = translationResponse.choices[0]?.message?.content?.trim() || '';
+          } catch (groqErr: any) {
+            console.warn(`Groq Translation failed (likely rate limit), falling back to OpenAI: ${groqErr.message}`);
+            if (!this.openai) throw new Error("No OpenAI key available for fallback translation");
+            
+            const translationResponse = await this.openai.chat.completions.create({
+              messages: [
+                {
+                  role: "system",
+                  content: `You are a highly accurate real-time translator. Translate the user's speech directly into ${targetLang}. ONLY output the raw translated text, with no conversational filler, quotes, or explanations. If the text is already in ${targetLang}, just output the exact text unchanged.`
+                },
+                {
+                  role: "user",
+                  content: transcribedText
+                }
+              ],
+              model: "gpt-4o-mini",
+              temperature: 0.2,
+              max_tokens: 200,
+            });
+            translatedText = translationResponse.choices[0]?.message?.content?.trim() || '';
+          }
 
-          const translatedText = translationResponse.choices[0]?.message?.content?.trim();
           if (!translatedText) return;
 
           // 5. Send this specific translation ONLY to the users who asked for it
